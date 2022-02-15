@@ -4,10 +4,12 @@ import gensim
 from gensim.models import KeyedVectors
 import numpy as np
 from tqdm import tqdm
+import os
 
 print("Loading Word2Vec")
 google_wv = KeyedVectors.load_word2vec_format(
-    "/path/to/GoogleNews-vectors-negative300.bin",
+    # "/path/to/GoogleNews-vectors-negative300.bin",
+    os.environ["VCDM_GOOGLE_BIN"] + "/GoogleNews-vectors-negative300.bin",
     binary=True,
     limit=500000,  # faster loading
 )

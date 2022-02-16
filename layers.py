@@ -303,9 +303,12 @@ class GRU_Decoder(nn.Module):
         if self.MODE == "TRAIN":
             word_dropout = Bernoulli(0.75).sample(seq[:, 1:].shape)
             word_dropout = word_dropout.type(torch.LongTensor)
+
+            device_type = seq.device
             seq = seq.cpu()
             seq[:, 1:] = seq[:, 1:] * word_dropout
-            seq = seq.cuda()
+            seq = seq.to(device_type)
+            
         # 1, batch_size, hidden_x_dirs
         if initial_state is not None:
             decoder_hidden_tuple_i = initial_state.unsqueeze(0)
@@ -343,7 +346,7 @@ class GRU_Decoder(nn.Module):
             else:
                 # batch_size, 1
                 seq_i = predictions_i.unsqueeze(1)
-                seq_i = seq_i.cuda()
+                seq_i = seq_i.to(original_seq.device)
 
         # (seq_len, batch_size)
         predictions = torch.stack(predictions, 0)

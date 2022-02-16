@@ -36,7 +36,7 @@ def build_trainer(model, args, datamaker, phase="train"):
         # val_interval=100,
         serialization_dir=args.serialization_dir,
         # max_vals=50,
-        device="cuda",
+        device=args.device,
         clip_grad_norm_val=args.clip,
         initial_lr=args.initial_lr,
         lr_decay=None,
@@ -434,7 +434,8 @@ class Trainer(object):
                     definition_ae, definition_ae_lens = None, None
 
                 sentence_mask = bert_dual_sequence_mask(
-                    example, self._datamaker.vocab.example.encode("</s>")[1:-1]
+                    # example, self._datamaker.vocab.example.encode("</s>")[1:-1], device=self._device
+                    example, self._datamaker.vocab.example.encode(self._datamaker.vocab.example._sep_token)[1:-1], device=self._device
                 )
                 current_batch_size = word.shape[0]
 
@@ -630,7 +631,8 @@ class Trainer(object):
                     definition_ae, definition_ae_lens = None, None
 
                 sentence_mask = bert_dual_sequence_mask(
-                    example, self._datamaker.vocab.example.encode("</s>")[1:-1]
+                    # example, self._datamaker.vocab.example.encode("</s>")[1:-1], device=self._device
+                    example, self._datamaker.vocab.example.encode(self._datamaker.vocab.example._sep_token)[1:-1], device=self._device
                 )
                 current_batch_size = word.shape[0]
 
@@ -933,7 +935,8 @@ class Trainer(object):
                     definition_ae, definition_ae_lens = None, None
 
                 sentence_mask = bert_dual_sequence_mask(
-                    example, self._datamaker.vocab.example.encode("</s>")[1:-1]
+                    # example, self._datamaker.vocab.example.encode("</s>")[1:-1], device=self._device
+                    example, self._datamaker.vocab.example.encode(self._datamaker.vocab.example._sep_token)[1:-1], device=self._device
                 )
                 current_batch_size = word.shape[0]
 
@@ -1109,7 +1112,7 @@ class Trainer(object):
         if phase not in ["train", "valid", "test"]:
             raise NotImplementedError(f"{phase} must be in ['train','test','valid']")
         if phase == "train":
-            return self._model(**batch)
+            return self._model(device=self._device, **batch)
         elif phase in ["valid", "test"]:
             return self._model._validate(**batch)
         else:

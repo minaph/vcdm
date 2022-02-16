@@ -179,7 +179,7 @@ class Definer(nn.Module):
         onehot = torch.zeros(idx.size(0), self.conditional_size)
         onehot.scatter_(1, idx, 1)
 
-        return onehot.cuda()
+        return onehot.to(idx.device)
 
     def inference(
         self,

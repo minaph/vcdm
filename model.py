@@ -113,13 +113,15 @@ class DefinitionProbing(nn.Module):
         definition_lens=None,
         classification_labels=None,
         sentence_mask=None,
+        device="cuda",
     ):
         batch_size, tgt_len = target.shape
 
         # (batch_size,seq_len,hidden_size), (batch_size,hidden_size), (num_layers,batch_size,seq_len,hidden_size)
-        last_hidden_layer, sentence_representation, all_hidden_layers = self.encoder(
+        encoded = self.encoder(
             input, attention_mask=sequence_mask(seq_lens), token_type_ids=sentence_mask
         )
+        last_hidden_layer, sentence_representation, all_hidden_layers = [encoded[key] for key in encoded]
 
         cosine_loss = None
         loss = None
@@ -132,7 +134,7 @@ class DefinitionProbing(nn.Module):
 
         else:
             span_ids = self._id_extractor(
-                tokens=span_token_ids, batch=input, lens=seq_lens
+                tokens=span_token_ids, batch=input, lens=seq_lens, device=device
             )
 
             span_representation, hidden_states = self._span_aggregator(
@@ -142,13 +144,15 @@ class DefinitionProbing(nn.Module):
             )
             span_representation = self.context_feed_forward(span_representation)
         if self.variational:
+            encoded_defs = self.definition_encoder(
+                definition, attention_mask=sequence_mask(definition_lens)
+            )
             (
                 definition_last_hidden_layer,
                 _,
                 definition_all_hidden_layers,
-            ) = self.definition_encoder(
-                definition, attention_mask=sequence_mask(definition_lens)
-            )
+            ) = [encoded_defs[key] for key in encoded_defs]
+
             definition_representation = self.definition_feed_forward(
                 definition_last_hidden_layer[:, 0]
             )
@@ -229,9 +233,10 @@ class DefinitionProbing(nn.Module):
         batch_size, tgt_len = target.shape
 
         # (batch_size,seq_len,hidden_size), (batch_size,hidden_size), (num_layers,batch_size,seq_len,hidden_size)
-        last_hidden_layer, pooled_representation, all_hidden_layers = self.encoder(
+        encoded = self.encoder(
             input, attention_mask=sequence_mask(seq_lens), token_type_ids=sentence_mask
         )
+        last_hidden_layer, sentence_representation, all_hidden_layers = [encoded[key] for key in encoded]
 
         KLD = None
         mu_prime = None
@@ -253,13 +258,15 @@ class DefinitionProbing(nn.Module):
 
             span_representation = self.context_feed_forward(span_representation)
         if self.variational:
+            encoded_defs = self.definition_encoder(
+                definition, attention_mask=sequence_mask(definition_lens)
+            )
             (
                 definition_last_hidden_layer,
                 _,
                 definition_all_hidden_layers,
-            ) = self.definition_encoder(
-                definition, attention_mask=sequence_mask(definition_lens)
-            )
+            ) = [encoded_defs[key] for key in encoded_defs]
+
             definition_representation = self.definition_feed_forward(
                 definition_last_hidden_layer[:, 0]
             )
@@ -435,7 +442,7 @@ class DefinitionProbing(nn.Module):
             span = extracted_embeddings.sum(1) / lengths
         return span, hidden_states
 
-    def _id_extractor(self, tokens, batch, lens):
+    def _id_extractor(self, tokens, batch, lens, device):
         """
         Extracts span indices given a sequence, if none found returns the span as the start and end of sequence as the span
         """
@@ -450,7 +457,7 @@ class DefinitionProbing(nn.Module):
 
             output_indices = []
             for i in range(batch.shape[0]):
-                tensor = find_subtensor(output_ids[i], batch[i])
+                tensor = find_subtensor(output_ids[i], batch[i], device)
                 if tensor is None:
                     tensor = torch.tensor([1, lens[i].item() - 1]).to("cuda")
                 output_indices.append(tensor)
@@ -671,10 +678,10 @@ class LSTM_Decoder(nn.Module):
             inp = inp.cpu()
             inp[1 : _len - 1] = inp[1 : _len - 1] * word_dropout.type(torch.LongTensor)
             inp[1 : _len - 1][inp[1 : _len - 1] == 0] = self.embeddings.unk_idx
-            inp = inp.cuda()
+            inp = inp.cuda() if input.device.type == "cuda" else inp
             output.append(inp)
 
-        return torch.stack(output, 0).cuda()
+        return torch.stack(output, 0).to(input.device)
 
 
 class VDM_LSTMCell(nn.Module):
@@ -759,15 +766,18 @@ class LSTM_Encoder(nn.Module):
             embedded_seq, seq_len, batch_first=True, enforce_sorted=False
         )
         if initial_state is not None:
-            encoder_hidden, (h_0, c_0) = self.encoder(
+            encoded = self.encoder(
                 encoder_input,
                 (
                     initial_state.unsqueeze(0).repeat(self.num_layers * 2, 1, 1),
                     initial_state.unsqueeze(0).repeat(self.num_layers * 2, 1, 1),
                 ),
             )
+            encoder_hidden, (h_0, c_0) = [encoded[keys] for keys in encoded]
+
         else:
-            encoder_hidden, (h_0, c_0) = self.encoder(encoder_input)
+            encoded = self.encoder(encoder_input)
+            encoder_hidden, (h_0, c_0) = [encoded[keys] for keys in encoded]
         encoder_hidden, _ = nn.utils.rnn.pad_packed_sequence(
             encoder_hidden, batch_first=True
         )
@@ -881,10 +891,12 @@ class DefinitionProbingLSTM(nn.Module):
         batch_size, tgt_len = target.shape
 
         # (batch_size,seq_len,hidden_size), (batch_size,hidden_size), (num_layers,batch_size,seq_len,hidden_size)
-        _, last_hidden_layer = self.context_encoder(input, seq_lens, initial_state=None)
-        definition_representation, _ = self.definition_encoder(
+        encoded = self.context_encoder(input, seq_lens, initial_state=None)
+        _, last_hidden_layer = [encoded[keys] for keys in encoded]
+        encoded = self.definition_encoder(
             definition, definition_lens, initial_state=None
         )
+        definition_representation, _ = [encoded[keys] for keys in encoded]
 
         span_ids = self._id_extractor(tokens=span_token_ids, batch=input, lens=seq_lens)
         span_representation, hidden_states = self._span_aggregator(
@@ -966,10 +978,12 @@ class DefinitionProbingLSTM(nn.Module):
         batch_size, tgt_len = target.shape
 
         # (batch_size,seq_len,hidden_size), (batch_size,hidden_size), (num_layers,batch_size,seq_len,hidden_size)
-        _, last_hidden_layer = self.context_encoder(input, seq_lens, initial_state=None)
-        definition_representation, _ = self.definition_encoder(
+        encoded = self.context_encoder(input, seq_lens, initial_state=None)
+        _, last_hidden_layer = [encoded[keys] for keys in encoded]
+        encoded = self.definition_encoder(
             definition, definition_lens, initial_state=None
         )
+        definition_representation, _ = [encoded[keys] for keys in encoded]
 
         span_ids = self._id_extractor(tokens=span_token_ids, batch=input, lens=seq_lens)
         span_representation, hidden_states = self._span_aggregator(

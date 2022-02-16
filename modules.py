@@ -109,7 +109,7 @@ class LSTM_Encoder(nn.Module):
             inp = inp.cpu()
             inp[1:_len] = inp[1:_len] * word_dropout.type(torch.LongTensor)
             inp[1:_len][inp[1:_len] == 0] = self.embeddings.unk_idx
-            inp = inp.cuda()
+            inp = inp.to(input.device)
             output.append(inp)
 
-        return torch.stack(output, 0).cuda()
+        return torch.stack(output, 0).to(input.device)

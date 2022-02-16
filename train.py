@@ -48,7 +48,7 @@ if __name__ == "__main__":
     datamaker.build_data(
         config.dataset,
         max_len=config.max_length,
-        lowercase=config.lowercase,
+        # lowercase=config.lowercase,
         shared_vocab_fields=["example", "word"],
     )
     ####################################
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         word_dropout_p=config.tgt_word_dropout,
         definition_encoder=definition_encoder,
         decoder_num_layers=config.decoder_num_layers,
-    ).to(config.device)
+    ).to(device)
 
     ####################################
     ####################################

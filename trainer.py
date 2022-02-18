@@ -17,6 +17,7 @@ import numpy as np
 from transformers import BertModel, RobertaModel
 from itertools import chain
 from bert_score import BERTScorer
+from itertools import islice
 
 scorer = BERTScorer(lang="en")
 bert_score = scorer.score
@@ -394,6 +395,9 @@ class Trainer(object):
             "train", batch_size, device=self._device
         )
 
+        # for testing
+        # _test_train_iterator = islice(train_iterator, 0, 1)
+
         validate_interval = None
         if self._validation_interval is not None:
             if len(train_iterator) > self._validation_interval:
@@ -604,6 +608,9 @@ class Trainer(object):
             "valid", batch_size, device=self._device
         )
 
+        # for testing
+        # _test_valid_iterator = islice(valid_iterator, 1)
+
         generations = []
         targets = []
         sources = []
@@ -664,6 +671,7 @@ class Trainer(object):
                         definition=definition_ae,
                         definition_lens=definition_ae_lens,
                         sentence_mask=sentence_mask,
+                        device=self._device,
                     )
                 torch.cuda.empty_cache()
 
@@ -1107,7 +1115,7 @@ class Trainer(object):
         self._validation_counter = 0
         self._train_counter = 0
 
-    def _forward(self, phase: str = "train", **batch):
+    def _forward(self, phase: str = "train",  **batch):
 
         if phase not in ["train", "valid", "test"]:
             raise NotImplementedError(f"{phase} must be in ['train','test','valid']")

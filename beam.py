@@ -73,13 +73,16 @@ class BeamSearch(DecodeStrategy):
             pad,
             bos,
             eos,
+            None, # unk,
             batch_size,
             beam_size,
+            global_scorer, # global_scorer,
             min_length,
             block_ngram_repeat,
             exclusion_tokens,
             return_attention,
             max_length,
+            True # ban_unk_token
         )
         # beam parameters
         self.global_scorer = global_scorer
@@ -133,7 +136,7 @@ class BeamSearch(DecodeStrategy):
 
         self.memory_lengths = tile(src_lengths, self.beam_size)
         super(BeamSearch, self).initialize(
-            memory_bank, self.memory_lengths, src_map, device
+            memory_bank, self.memory_lengths, src_map, device=device
         )
         self.best_scores = torch.full(
             [self.batch_size], -1e10, dtype=torch.float, device=device
@@ -217,7 +220,7 @@ class BeamSearch(DecodeStrategy):
         torch.mul(self.topk_scores, length_penalty, out=self.topk_log_probs)
 
         # Resolve beam origin and map to batch index flat representation.
-        torch.div(self.topk_ids, vocab_size, out=self._batch_index)
+        torch.div(self.topk_ids, vocab_size, rounding_mode="floor", out=self._batch_index)
         self._batch_index += self._beam_offset[:_B].unsqueeze(1)
         self.select_indices = self._batch_index.view(_B * self.beam_size)
         self.topk_ids.fmod_(vocab_size)  # resolve true word ids

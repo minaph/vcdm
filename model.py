@@ -229,6 +229,7 @@ class DefinitionProbing(nn.Module):
         definition=None,
         definition_lens=None,
         sentence_mask=None,
+        device="cuda",
     ):
         batch_size, tgt_len = target.shape
 
@@ -247,7 +248,7 @@ class DefinitionProbing(nn.Module):
             hidden_states = last_hidden_layer
         else:
             span_ids = self._id_extractor(
-                tokens=span_token_ids, batch=input, lens=seq_lens
+                tokens=span_token_ids, batch=input, lens=seq_lens, device=device
             )
 
             span_representation, hidden_states = self._span_aggregator(
@@ -313,6 +314,7 @@ class DefinitionProbing(nn.Module):
             memory_bank,
             seq_lens,
             span_representation,
+            device
         )
         return DotMap(
             {
@@ -332,6 +334,7 @@ class DefinitionProbing(nn.Module):
         memory_bank,
         memory_lengths,
         span_representation,
+        device
     ):
         """Translate a batch of sentences step by step using cache.
         Args:
@@ -365,7 +368,7 @@ class DefinitionProbing(nn.Module):
         # (2) prep decode_strategy. Possibly repeat src objects.
         src_map = None  # batch.src_map if use_src_map else None
         fn_map_state, memory_bank, memory_lengths, src_map = decode_strategy.initialize(
-            memory_bank, memory_lengths, src_map, device="cuda"
+            memory_bank, memory_lengths, src_map, device=device
         )
         if fn_map_state is not None:
             self.decoder.map_state(fn_map_state)

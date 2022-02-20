@@ -59,7 +59,7 @@ tgt_word_dropout: 0.25
 teacher_forcing_p: 0.2
 
 kl_reach_point: 1
-warmup_steps: 64
+warmup_steps: 1500
 attentional: True
 aggregator: mean
 validation_interval: null

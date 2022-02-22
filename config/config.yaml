@@ -26,7 +26,7 @@ load_optimizer: null
 embedding_dim: 300
 
 encoder: bert-base-uncased
-encoder_hidden: null 
+encoder_hidden: 768
 encoder_frozen: false
 max_layer: 12
 
@@ -35,8 +35,8 @@ decoder_hidden: 512
 decoder_num_layers: 1
 
 
-datapath: /home/machel.reid/data/hiddic/
-dataset: null
+datapath: /Users/minaph/Projects/vcdm_orig/data
+dataset: oxford
 
 seed: 12
 
@@ -58,8 +58,8 @@ src_word_dropout: 0.0
 tgt_word_dropout: 0.25
 teacher_forcing_p: 0.2
 
-kl_reach_point: 1
-warmup_steps: 1500
+kl_reach_point: 50
+warmup_steps: 1259
 attentional: True
 aggregator: mean
 validation_interval: null

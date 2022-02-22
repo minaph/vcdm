@@ -73,16 +73,16 @@ class BeamSearch(DecodeStrategy):
             pad,
             bos,
             eos,
-            None, # unk,
+            # None, # unk,
             batch_size,
             beam_size,
-            global_scorer, # global_scorer,
+            # global_scorer, # global_scorer,
             min_length,
             block_ngram_repeat,
             exclusion_tokens,
             return_attention,
             max_length,
-            True # ban_unk_token
+            # True # ban_unk_token
         )
         # beam parameters
         self.global_scorer = global_scorer

@@ -438,8 +438,8 @@ class Trainer(object):
                     definition_ae, definition_ae_lens = None, None
 
                 sentence_mask = bert_dual_sequence_mask(
-                    # example, self._datamaker.vocab.example.encode("</s>")[1:-1], device=self._device
-                    example, self._datamaker.vocab.example.encode(self._datamaker.vocab.example._sep_token)[1:-1], device=self._device
+                    example, self._datamaker.vocab.example.encode("</s>")[1:-1], device=self._device
+                    # example, self._datamaker.vocab.example.encode(self._datamaker.vocab.example._sep_token)[1:-1], device=self._device
                 )
                 current_batch_size = word.shape[0]
 

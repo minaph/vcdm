@@ -35,7 +35,7 @@ decoder_hidden: 512
 decoder_num_layers: 1
 
 
-datapath: /Users/minaph/Projects/vcdm_orig/data
+datapath: /work/mino/vcdm/data
 dataset: oxford
 
 seed: 12

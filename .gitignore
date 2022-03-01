@@ -5,3 +5,5 @@ app.log
 sentence-bleu
 RESULTS_DIRoxford
 .vscode
+analysis
+trainlog.txt

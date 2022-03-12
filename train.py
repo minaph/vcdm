@@ -13,7 +13,7 @@ import json
 from embeddings import Word2Vec
 
 from pytorch_memlab import profile, MemReporter
-from .memstat import make_report
+from memstat import make_report
 
 config_parser = StrictConfigParser(default=os.path.join("config", "config.yaml"))
 

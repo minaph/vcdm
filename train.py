@@ -35,8 +35,6 @@ def main():
         definition_ae_field = get_dm_conf(config.encoder, "definition_ae")
         data_fields.append(definition_ae_field)
 
-    device = torch.device("cuda" if use_cuda else "cpu")
-
     config.update(
         {
             "serialization_dir": config.serialization_dir
@@ -113,7 +111,7 @@ def main():
         word_dropout_p=config.tgt_word_dropout,
         definition_encoder=definition_encoder,
         decoder_num_layers=config.decoder_num_layers,
-    ).to(device)
+    ).to(torch.device("cuda:1" if use_cuda else "cpu"))
 
     reporter = MemReporter(model)
 

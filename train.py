@@ -12,11 +12,11 @@ import json
 
 from embeddings import Word2Vec
 
-from pytorch_memlab import profile
+# from pytorch_memlab import profile
 
 config_parser = StrictConfigParser(default=os.path.join("config", "config.yaml"))
 
-@profile
+# @profile
 def main():
 
     config = config_parser.parse_args()

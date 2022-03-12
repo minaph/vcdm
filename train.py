@@ -13,6 +13,7 @@ import json
 from embeddings import Word2Vec
 
 from pytorch_memlab import profile, MemReporter
+from .memstat import make_report
 
 config_parser = StrictConfigParser(default=os.path.join("config", "config.yaml"))
 
@@ -132,8 +133,8 @@ def main():
 
     reporter.collect_tensor()
     reporter.get_stats()
-    with open(config.serialization_dir + "/model_memory_stats_init.json", "w") as f:
-        json.dump(reporter.device_tensor_stat, f)
+    with open(config.serialization_dir + "/model_memory_stats_init.txt", "w") as f:
+        f.write(make_report(reporter.device_tensor_stat, verbose=True))
 
     try:
         for i in range(config.max_epochs):
@@ -148,7 +149,9 @@ def main():
         reporter.collect_tensor()
         reporter.get_stats()
         with open(config.serialization_dir + "/model_memory_stats_trained.json", "w") as f:
-            json.dump(reporter.device_tensor_stat, f)
+            f.write(make_report(reporter.device_tensor_stat, verbose=True))
 
 if __name__ == "__main__":
     main()
+
+

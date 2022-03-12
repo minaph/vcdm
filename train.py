@@ -111,7 +111,7 @@ def main():
         word_dropout_p=config.tgt_word_dropout,
         definition_encoder=definition_encoder,
         decoder_num_layers=config.decoder_num_layers,
-    ).to(torch.device("cuda:1" if use_cuda else "cpu"))
+    ).to(torch.device("cuda" if use_cuda else "cpu"))
 
     reporter = MemReporter(model)
 

@@ -148,7 +148,7 @@ def main():
     finally:
         reporter.collect_tensor()
         reporter.get_stats()
-        with open(config.serialization_dir + "/model_memory_stats_trained.json", "w") as f:
+        with open(config.serialization_dir + "/model_memory_stats_trained.txt", "w") as f:
             f.write(make_report(reporter.device_tensor_stat, verbose=True))
 
 if __name__ == "__main__":

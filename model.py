@@ -1,16 +1,16 @@
-import transformers
+# import transformers
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from allennlp.modules.span_extractors import (
-    EndpointSpanExtractor,
+    # EndpointSpanExtractor,
     SelfAttentiveSpanExtractor,
 )
 from allennlp.modules.scalar_mix import ScalarMix
 from utils import sequence_mask, find_subtensor, batched_span_select
 from dotmap import DotMap
 import random
-from beam import BeamSearch
+# from beam import BeamSearch
 from onmt.modules import GlobalAttention
 from onmt.translate import GNMTGlobalScorer
 from torch.distributions.bernoulli import Bernoulli
@@ -716,31 +716,31 @@ class VDM_LSTMCell(nn.Module):
         return hy, cy
 
 
-class VDM_GRUCell(nn.Module):
-    def __init__(self, input_dim, hidden_dim):
-        super(VDM_LSTMCell, self).__init__()
-        self.w_i = nn.Linear(input_dim, hidden_dim * 3)
-        self.w_h = nn.Linear(hidden_dim, hidden_dim * 3)
-        self.w_z = nn.Linear(hidden_dim, hidden_dim * 3)
-        self.w_c = nn.Linear(hidden_dim, hidden_dim * 3)
+# class VDM_GRUCell(nn.Module):
+#     def __init__(self, input_dim, hidden_dim):
+#         super(VDM_LSTMCell, self).__init__()
+#         self.w_i = nn.Linear(input_dim, hidden_dim * 3)
+#         self.w_h = nn.Linear(hidden_dim, hidden_dim * 3)
+#         self.w_z = nn.Linear(hidden_dim, hidden_dim * 3)
+#         self.w_c = nn.Linear(hidden_dim, hidden_dim * 3)
 
-    def forward(self, input, hidden):
-        hx, zx, cx = hidden
-        gi = self.w_i(input)
-        gh = self.w_h(hx)
-        gz = self.w_z(zx)
-        gc = self.w_c(cx)
+#     def forward(self, input, hidden):
+#         hx, zx, cx = hidden
+#         gi = self.w_i(input)
+#         gh = self.w_h(hx)
+#         gz = self.w_z(zx)
+#         gc = self.w_c(cx)
 
-        i_r, i_i, i_n = gi.chunk(3, 1)
-        h_r, h_h, h_n = gh.chunk(3, 1)
-        z_r, z_z, z_n = gz.chunk(3, 1)
-        c_r, c_c, c_n = gc.chunk(3, 1)
+#         i_r, i_i, i_n = gi.chunk(3, 1)
+#         h_r, h_h, h_n = gh.chunk(3, 1)
+#         z_r, z_z, z_n = gz.chunk(3, 1)
+#         c_r, c_c, c_n = gc.chunk(3, 1)
 
-        resetgate = torch.sigmoid(i_r + h_r + z_r + c_r)
-        inputgate = torch.sigmoid(i_i + h_i + z_i + c_i)
-        newgate = torch.tanh(i_n + (resetgate * h_n) + c_n + z_n)
-        hy = newgate + inputgate * (hidden - newgate)
-        return hy, cy
+#         resetgate = torch.sigmoid(i_r + h_r + z_r + c_r)
+#         inputgate = torch.sigmoid(i_i + h_i + z_i + c_i)
+#         newgate = torch.tanh(i_n + (resetgate * h_n) + c_n + z_n)
+#         hy = newgate + inputgate * (hidden - newgate)
+#         return hy, cy
 
 
 class LSTM_Encoder(nn.Module):
@@ -799,376 +799,376 @@ class LSTM_Encoder(nn.Module):
         return final_hidden, encoder_hidden
 
 
-class DefinitionProbingLSTM(nn.Module):
-    def __init__(
-        self,
-        encoder,
-        decoder_hidden,
-        embeddings,
-        max_layer=12,
-        src_pad_idx=0,
-        encoder_hidden=None,
-        latent_size=None,
-        scalar_mix=False,
-        aggregator="mean",
-        teacher_forcing_p=0.3,
-        classification=None,
-        attentional=False,
-        definition_encoder=None,
-        word_dropout_p=None,
-        decoder_num_layers=2,
-    ):
-        super(DefinitionProbingLSTM, self).__init__()
+# class DefinitionProbingLSTM(nn.Module):
+#     def __init__(
+#         self,
+#         encoder,
+#         decoder_hidden,
+#         embeddings,
+#         max_layer=12,
+#         src_pad_idx=0,
+#         encoder_hidden=None,
+#         latent_size=None,
+#         scalar_mix=False,
+#         aggregator="mean",
+#         teacher_forcing_p=0.3,
+#         classification=None,
+#         attentional=False,
+#         definition_encoder=None,
+#         word_dropout_p=None,
+#         decoder_num_layers=2,
+#     ):
+#         super(DefinitionProbingLSTM, self).__init__()
 
-        self.embeddings = embeddings
-        self.encoder_hidden = encoder_hidden
-        self.decoder_hidden = decoder_hidden
-        self.decoder_num_layers = decoder_num_layers
-        self.encoder = encoder
-        self.latent_size = latent_size
-        self.src_pad_idx = src_pad_idx
-        self.aggregator = aggregator
-        self.context_feed_forward = nn.Linear(self.encoder_hidden, self.encoder_hidden)
-        self.scalar_mix = None
-        if scalar_mix:
-            self.scalar_mix = ScalarMix(self.max_layer + 1)
-        self.global_scorer = GNMTGlobalScorer(
-            alpha=2, beta=None, length_penalty="avg", coverage_penalty=None
-        )
-        self.definition_encoder = LSTM_Encoder(
-            self.embeddings._def,
-            self.encoder_hidden,
-            self.encoder_num_layers,
-            self.dropout_dict.src,
-            self.dropout_dict.src,
-        )
-        self.context_encoder = LSTM_Encoder(
-            self.embeddings.src,
-            self.encoder_hidden,
-            self.encoder_num_layers,
-            self.dropout_dict.src,
-            self.dropout_dict.src,
-        )
+#         self.embeddings = embeddings
+#         self.encoder_hidden = encoder_hidden
+#         self.decoder_hidden = decoder_hidden
+#         self.decoder_num_layers = decoder_num_layers
+#         self.encoder = encoder
+#         self.latent_size = latent_size
+#         self.src_pad_idx = src_pad_idx
+#         self.aggregator = aggregator
+#         self.context_feed_forward = nn.Linear(self.encoder_hidden, self.encoder_hidden)
+#         self.scalar_mix = None
+#         if scalar_mix:
+#             self.scalar_mix = ScalarMix(self.max_layer + 1)
+#         self.global_scorer = GNMTGlobalScorer(
+#             alpha=2, beta=None, length_penalty="avg", coverage_penalty=None
+#         )
+#         self.definition_encoder = LSTM_Encoder(
+#             self.embeddings._def,
+#             self.encoder_hidden,
+#             self.encoder_num_layers,
+#             self.dropout_dict.src,
+#             self.dropout_dict.src,
+#         )
+#         self.context_encoder = LSTM_Encoder(
+#             self.embeddings.src,
+#             self.encoder_hidden,
+#             self.encoder_num_layers,
+#             self.dropout_dict.src,
+#             self.dropout_dict.src,
+#         )
 
-        self.decoder = LSTM_Decoder(
-            embeddings.tgt,
-            hidden=self.decoder_hidden,
-            encoder_hidden=self.encoder_hidden,
-            num_layers=self.decoder_num_layers,
-            word_dropout=word_dropout_p,
-            teacher_forcing_p=teacher_forcing_p,
-            attention="general" if attentional else None,
-            dropout=DotMap({"input": 0.5, "output": 0.5}),
-            decoder="VDM" if self.variational else "LSTM",
-            variational=self.variational,
-            latent_size=self.latent_size,
-        )
+#         self.decoder = LSTM_Decoder(
+#             embeddings.tgt,
+#             hidden=self.decoder_hidden,
+#             encoder_hidden=self.encoder_hidden,
+#             num_layers=self.decoder_num_layers,
+#             word_dropout=word_dropout_p,
+#             teacher_forcing_p=teacher_forcing_p,
+#             attention="general" if attentional else None,
+#             dropout=DotMap({"input": 0.5, "output": 0.5}),
+#             decoder="VDM" if self.variational else "LSTM",
+#             variational=self.variational,
+#             latent_size=self.latent_size,
+#         )
 
-        self.target_kl = 1.0
-        self.definition_feed_forward = nn.Linear(
-            self.encoder_hidden, self.encoder_hidden
-        )
-        self.mean_layer = nn.Linear(self.latent_size, self.latent_size)
-        self.logvar_layer = nn.Linear(self.latent_size, self.latent_size)
-        self.w_z_post = nn.Sequential(
-            nn.Linear(self.encoder_hidden * 2, self.latent_size), nn.Tanh()
-        )
-        self.mean_prime_layer = nn.Linear(self.latent_size, self.latent_size)
-        self.logvar_prime_layer = nn.Linear(self.latent_size, self.latent_size)
-        self.w_z_prior = nn.Sequential(
-            nn.Linear(self.encoder_hidden, self.latent_size), nn.Tanh()
-        )
-        self.z_project = nn.Sequential(
-            nn.Linear(self.latent_size, self.decoder_hidden), nn.Tanh()
-        )
+#         self.target_kl = 1.0
+#         self.definition_feed_forward = nn.Linear(
+#             self.encoder_hidden, self.encoder_hidden
+#         )
+#         self.mean_layer = nn.Linear(self.latent_size, self.latent_size)
+#         self.logvar_layer = nn.Linear(self.latent_size, self.latent_size)
+#         self.w_z_post = nn.Sequential(
+#             nn.Linear(self.encoder_hidden * 2, self.latent_size), nn.Tanh()
+#         )
+#         self.mean_prime_layer = nn.Linear(self.latent_size, self.latent_size)
+#         self.logvar_prime_layer = nn.Linear(self.latent_size, self.latent_size)
+#         self.w_z_prior = nn.Sequential(
+#             nn.Linear(self.encoder_hidden, self.latent_size), nn.Tanh()
+#         )
+#         self.z_project = nn.Sequential(
+#             nn.Linear(self.latent_size, self.decoder_hidden), nn.Tanh()
+#         )
 
-    def forward(
-        self,
-        input,
-        seq_lens,
-        span_token_ids,
-        target,
-        target_lens,
-        definition=None,
-        definition_lens=None,
-        classification_labels=None,
-        sentence_mask=None,
-    ):
-        batch_size, tgt_len = target.shape
+#     def forward(
+#         self,
+#         input,
+#         seq_lens,
+#         span_token_ids,
+#         target,
+#         target_lens,
+#         definition=None,
+#         definition_lens=None,
+#         classification_labels=None,
+#         sentence_mask=None,
+#     ):
+#         batch_size, tgt_len = target.shape
 
-        # (batch_size,seq_len,hidden_size), (batch_size,hidden_size), (num_layers,batch_size,seq_len,hidden_size)
-        encoded = self.context_encoder(input, seq_lens, initial_state=None)
-        _, last_hidden_layer = [encoded[keys] for keys in encoded]
-        encoded = self.definition_encoder(
-            definition, definition_lens, initial_state=None
-        )
-        definition_representation, _ = [encoded[keys] for keys in encoded]
+#         # (batch_size,seq_len,hidden_size), (batch_size,hidden_size), (num_layers,batch_size,seq_len,hidden_size)
+#         encoded = self.context_encoder(input, seq_lens, initial_state=None)
+#         _, last_hidden_layer = [encoded[keys] for keys in encoded]
+#         encoded = self.definition_encoder(
+#             definition, definition_lens, initial_state=None
+#         )
+#         definition_representation, _ = [encoded[keys] for keys in encoded]
 
-        span_ids = self._id_extractor(tokens=span_token_ids, batch=input, lens=seq_lens)
-        span_representation, hidden_states = self._span_aggregator(
-            all_hidden_layers if self.scalar_mix is not None else last_hidden_layer,
-            sequence_mask(seq_lens),
-            span_ids,
-        )
-        span_representation = self.context_feed_forward(span_representation)
+#         span_ids = self._id_extractor(tokens=span_token_ids, batch=input, lens=seq_lens)
+#         span_representation, hidden_states = self._span_aggregator(
+#             all_hidden_layers if self.scalar_mix is not None else last_hidden_layer,
+#             sequence_mask(seq_lens),
+#             span_ids,
+#         )
+#         span_representation = self.context_feed_forward(span_representation)
 
-        definition_representation = self.definition_feed_forward(
-            definition_representation
-        )
+#         definition_representation = self.definition_feed_forward(
+#             definition_representation
+#         )
 
-        post_project = self.w_z_post(
-            torch.cat([span_representation, definition_representation], -1)
-        )
-        prior_project = self.w_z_prior(span_representation)
+#         post_project = self.w_z_post(
+#             torch.cat([span_representation, definition_representation], -1)
+#         )
+#         prior_project = self.w_z_prior(span_representation)
 
-        mu = self.mean_layer(post_project)
-        logvar = self.logvar_layer(post_project)
+#         mu = self.mean_layer(post_project)
+#         logvar = self.logvar_layer(post_project)
 
-        mu_prime = self.mean_prime_layer(prior_project)
-        logvar_prime = self.logvar_prime_layer(prior_project)
+#         mu_prime = self.mean_prime_layer(prior_project)
+#         logvar_prime = self.logvar_prime_layer(prior_project)
 
-        z = mu + torch.exp(logvar * 0.5) * torch.randn_like(logvar)
-        span_representation = self.z_project(z)
-        KLD = kl_divergence(
-            Normal(mu, torch.exp(logvar * 0.5)),
-            Normal(mu_prime, torch.exp(logvar_prime * 0.5)),
-        )
-        kl_mask = (KLD > (self.target_kl / self.latent_size)).float()
-        fake_loss_kl = (kl_mask * KLD).sum(dim=1)
+#         z = mu + torch.exp(logvar * 0.5) * torch.randn_like(logvar)
+#         span_representation = self.z_project(z)
+#         KLD = kl_divergence(
+#             Normal(mu, torch.exp(logvar * 0.5)),
+#             Normal(mu_prime, torch.exp(logvar_prime * 0.5)),
+#         )
+#         kl_mask = (KLD > (self.target_kl / self.latent_size)).float()
+#         fake_loss_kl = (kl_mask * KLD).sum(dim=1)
 
-        predictions, logits = self.decoder(
-            target, target_lens, span_representation, hidden_states, seq_lens,
-        )
+#         predictions, logits = self.decoder(
+#             target, target_lens, span_representation, hidden_states, seq_lens,
+#         )
 
-        loss = (
-            F.cross_entropy(
-                logits.view(batch_size * (tgt_len - 1), -1),
-                target[:, 1:].contiguous().view(-1),
-                ignore_index=self.embeddings.tgt.padding_idx,
-                reduction="none",
-            )
-            .view(batch_size, tgt_len - 1)
-            .sum(1)
-        )
+#         loss = (
+#             F.cross_entropy(
+#                 logits.view(batch_size * (tgt_len - 1), -1),
+#                 target[:, 1:].contiguous().view(-1),
+#                 ignore_index=self.embeddings.tgt.padding_idx,
+#                 reduction="none",
+#             )
+#             .view(batch_size, tgt_len - 1)
+#             .sum(1)
+#         )
 
-        perplexity = F.cross_entropy(
-            logits.view(batch_size * (tgt_len - 1), -1),
-            target[:, 1:].contiguous().view(-1),
-            ignore_index=self.embeddings.tgt.padding_idx,
-            reduction="mean",
-        ).exp()
-        return DotMap(
-            {
-                "predictions": predictions,
-                "logits": logits,
-                "loss": loss,
-                "perplexity": perplexity,
-                "fake_kl": fake_loss_kl,
-                "kl": KLD,
-                "cosine_loss": cosine_loss,
-            }
-        )
+#         perplexity = F.cross_entropy(
+#             logits.view(batch_size * (tgt_len - 1), -1),
+#             target[:, 1:].contiguous().view(-1),
+#             ignore_index=self.embeddings.tgt.padding_idx,
+#             reduction="mean",
+#         ).exp()
+#         return DotMap(
+#             {
+#                 "predictions": predictions,
+#                 "logits": logits,
+#                 "loss": loss,
+#                 "perplexity": perplexity,
+#                 "fake_kl": fake_loss_kl,
+#                 "kl": KLD,
+#                 "cosine_loss": cosine_loss,
+#             }
+#         )
 
-    def _validate(
-        self,
-        input,
-        seq_lens,
-        span_token_ids,
-        target,
-        target_lens,
-        decode_strategy,
-        definition=None,
-        definition_lens=None,
-        sentence_mask=None,
-    ):
-        batch_size, tgt_len = target.shape
+#     def _validate(
+#         self,
+#         input,
+#         seq_lens,
+#         span_token_ids,
+#         target,
+#         target_lens,
+#         decode_strategy,
+#         definition=None,
+#         definition_lens=None,
+#         sentence_mask=None,
+#     ):
+#         batch_size, tgt_len = target.shape
 
-        # (batch_size,seq_len,hidden_size), (batch_size,hidden_size), (num_layers,batch_size,seq_len,hidden_size)
-        encoded = self.context_encoder(input, seq_lens, initial_state=None)
-        _, last_hidden_layer = [encoded[keys] for keys in encoded]
-        encoded = self.definition_encoder(
-            definition, definition_lens, initial_state=None
-        )
-        definition_representation, _ = [encoded[keys] for keys in encoded]
+#         # (batch_size,seq_len,hidden_size), (batch_size,hidden_size), (num_layers,batch_size,seq_len,hidden_size)
+#         encoded = self.context_encoder(input, seq_lens, initial_state=None)
+#         _, last_hidden_layer = [encoded[keys] for keys in encoded]
+#         encoded = self.definition_encoder(
+#             definition, definition_lens, initial_state=None
+#         )
+#         definition_representation, _ = [encoded[keys] for keys in encoded]
 
-        span_ids = self._id_extractor(tokens=span_token_ids, batch=input, lens=seq_lens)
-        span_representation, hidden_states = self._span_aggregator(
-            all_hidden_layers if self.scalar_mix is not None else last_hidden_layer,
-            sequence_mask(seq_lens),
-            span_ids,
-        )
-        span_representation = self.context_feed_forward(span_representation)
+#         span_ids = self._id_extractor(tokens=span_token_ids, batch=input, lens=seq_lens)
+#         span_representation, hidden_states = self._span_aggregator(
+#             all_hidden_layers if self.scalar_mix is not None else last_hidden_layer,
+#             sequence_mask(seq_lens),
+#             span_ids,
+#         )
+#         span_representation = self.context_feed_forward(span_representation)
 
-        definition_representation = self.definition_feed_forward(
-            definition_representation
-        )
+#         definition_representation = self.definition_feed_forward(
+#             definition_representation
+#         )
 
-        post_project = self.w_z_post(
-            torch.cat([span_representation, definition_representation], -1)
-        )
-        prior_project = self.w_z_prior(span_representation)
+#         post_project = self.w_z_post(
+#             torch.cat([span_representation, definition_representation], -1)
+#         )
+#         prior_project = self.w_z_prior(span_representation)
 
-        mu = self.mean_layer(post_project)
-        logvar = self.logvar_layer(post_project)
+#         mu = self.mean_layer(post_project)
+#         logvar = self.logvar_layer(post_project)
 
-        mu_prime = self.mean_prime_layer(prior_project)
-        logvar_prime = self.logvar_prime_layer(prior_project)
+#         mu_prime = self.mean_prime_layer(prior_project)
+#         logvar_prime = self.logvar_prime_layer(prior_project)
 
-        z = mu + torch.exp(logvar * 0.5) * torch.randn_like(logvar)
-        span_representation = self.z_project(z)
-        KLD = (
-            kl_divergence(
-                Normal(mu, torch.exp(logvar * 0.5)),
-                Normal(mu_prime, torch.exp(logvar_prime * 0.5)),
-            )
-            .sum(1)
-            .mean()
-        )
+#         z = mu + torch.exp(logvar * 0.5) * torch.randn_like(logvar)
+#         span_representation = self.z_project(z)
+#         KLD = (
+#             kl_divergence(
+#                 Normal(mu, torch.exp(logvar * 0.5)),
+#                 Normal(mu_prime, torch.exp(logvar_prime * 0.5)),
+#             )
+#             .sum(1)
+#             .mean()
+#         )
 
-        memory_bank = hidden_states if self.decoder.attention else None
-        _, logits = self.decoder(
-            target, target_lens, span_representation, memory_bank, seq_lens,
-        )
+#         memory_bank = hidden_states if self.decoder.attention else None
+#         _, logits = self.decoder(
+#             target, target_lens, span_representation, memory_bank, seq_lens,
+#         )
 
-        loss = F.cross_entropy(
-            logits.view(batch_size * (tgt_len - 1), -1),
-            target[:, 1:].contiguous().view(-1),
-            ignore_index=self.embeddings.tgt.padding_idx,
-        )
+#         loss = F.cross_entropy(
+#             logits.view(batch_size * (tgt_len - 1), -1),
+#             target[:, 1:].contiguous().view(-1),
+#             ignore_index=self.embeddings.tgt.padding_idx,
+#         )
 
-        ppl = loss.exp()
-        beam_results = self._strategic_decode(
-            target,
-            target_lens,
-            decode_strategy,
-            memory_bank,
-            seq_lens,
-            span_representation,
-        )
-        return DotMap(
-            {
-                "predictions": beam_results["predictions"],
-                "logits": logits.view(batch_size * (tgt_len - 1), -1),
-                "loss": loss,
-                "perplexity": ppl,
-                "kl": KLD,
-            }
-        )
+#         ppl = loss.exp()
+#         beam_results = self._strategic_decode(
+#             target,
+#             target_lens,
+#             decode_strategy,
+#             memory_bank,
+#             seq_lens,
+#             span_representation,
+#         )
+#         return DotMap(
+#             {
+#                 "predictions": beam_results["predictions"],
+#                 "logits": logits.view(batch_size * (tgt_len - 1), -1),
+#                 "loss": loss,
+#                 "perplexity": ppl,
+#                 "kl": KLD,
+#             }
+#         )
 
-    def _strategic_decode(
-        self,
-        target,
-        target_lens,
-        decode_strategy,
-        memory_bank,
-        memory_lengths,
-        span_representation,
-    ):
-        """Translate a batch of sentences step by step using cache.
-        Args:
-            batch: a batch of sentences, yield by data iterator.
-            src_vocabs (list): list of torchtext.data.Vocab if can_copy.
-            decode_strategy (DecodeStrategy): A decode strategy to use for
-        generate translation step by step.
-        Returns:
-            results (dict): The translation results.
-        """
+#     def _strategic_decode(
+#         self,
+#         target,
+#         target_lens,
+#         decode_strategy,
+#         memory_bank,
+#         memory_lengths,
+#         span_representation,
+#     ):
+#         """Translate a batch of sentences step by step using cache.
+#         Args:
+#             batch: a batch of sentences, yield by data iterator.
+#             src_vocabs (list): list of torchtext.data.Vocab if can_copy.
+#             decode_strategy (DecodeStrategy): A decode strategy to use for
+#         generate translation step by step.
+#         Returns:
+#             results (dict): The translation results.
+#         """
 
-        parallel_paths = decode_strategy.parallel_paths  # beam_size
+#         parallel_paths = decode_strategy.parallel_paths  # beam_size
 
-        # (0) Prep the components of the search.
-        # use_src_map = self.copy_attn
-        batch_size, max_len = target.shape
-        # Initialize the hidden states
-        self.decoder.init_state(
-            span_representation, encoder_hidden=memory_bank, src_lens=memory_lengths
-        )
+#         # (0) Prep the components of the search.
+#         # use_src_map = self.copy_attn
+#         batch_size, max_len = target.shape
+#         # Initialize the hidden states
+#         self.decoder.init_state(
+#             span_representation, encoder_hidden=memory_bank, src_lens=memory_lengths
+#         )
 
-        results = {
-            "predictions": None,
-            "scores": None,
-            "attention": None,
-            # "gold_score": self._gold_score(
-            #    batch, memory_bank, src_lengths, src_vocabs, use_src_map,
-            #    enc_states, batch_size, src)
-        }
+#         results = {
+#             "predictions": None,
+#             "scores": None,
+#             "attention": None,
+#             # "gold_score": self._gold_score(
+#             #    batch, memory_bank, src_lengths, src_vocabs, use_src_map,
+#             #    enc_states, batch_size, src)
+#         }
 
-        # (2) prep decode_strategy. Possibly repeat src objects.
-        src_map = None  # batch.src_map if use_src_map else None
-        fn_map_state, memory_bank, memory_lengths, src_map = decode_strategy.initialize(
-            memory_bank, memory_lengths, src_map, device="cuda"
-        )
-        if fn_map_state is not None:
-            self.decoder.map_state(fn_map_state)
+#         # (2) prep decode_strategy. Possibly repeat src objects.
+#         src_map = None  # batch.src_map if use_src_map else None
+#         fn_map_state, memory_bank, memory_lengths, src_map = decode_strategy.initialize(
+#             memory_bank, memory_lengths, src_map, device="cuda"
+#         )
+#         if fn_map_state is not None:
+#             self.decoder.map_state(fn_map_state)
 
-        # (3) Begin decoding step by step:
-        for step in range(decode_strategy.max_length):
-            decoder_input = decode_strategy.current_predictions
+#         # (3) Begin decoding step by step:
+#         for step in range(decode_strategy.max_length):
+#             decoder_input = decode_strategy.current_predictions
 
-            logits, attn = self.decoder.generate(
-                decoder_input, memory_bank, memory_lengths
-            )
+#             logits, attn = self.decoder.generate(
+#                 decoder_input, memory_bank, memory_lengths
+#             )
 
-            decode_strategy.advance(F.log_softmax(logits, 1), attn)
-            any_finished = decode_strategy.is_finished.any()
-            if any_finished:
-                decode_strategy.update_finished()
-                if decode_strategy.done:
-                    break
+#             decode_strategy.advance(F.log_softmax(logits, 1), attn)
+#             any_finished = decode_strategy.is_finished.any()
+#             if any_finished:
+#                 decode_strategy.update_finished()
+#                 if decode_strategy.done:
+#                     break
 
-            select_indices = decode_strategy.select_indices
+#             select_indices = decode_strategy.select_indices
 
-            if any_finished:
-                # Reorder states.
-                if memory_bank is not None:
-                    if isinstance(memory_bank, tuple):
-                        memory_bank = tuple(
-                            x.index_select(0, select_indices) for x in memory_bank
-                        )
-                    else:
-                        memory_bank = memory_bank.index_select(0, select_indices)
+#             if any_finished:
+#                 # Reorder states.
+#                 if memory_bank is not None:
+#                     if isinstance(memory_bank, tuple):
+#                         memory_bank = tuple(
+#                             x.index_select(0, select_indices) for x in memory_bank
+#                         )
+#                     else:
+#                         memory_bank = memory_bank.index_select(0, select_indices)
 
-                memory_lengths = memory_lengths.index_select(0, select_indices)
+#                 memory_lengths = memory_lengths.index_select(0, select_indices)
 
-                if src_map is not None:
-                    src_map = src_map.index_select(1, select_indices)
+#                 if src_map is not None:
+#                     src_map = src_map.index_select(1, select_indices)
 
-            if parallel_paths > 1 or any_finished:
-                self.decoder.map_state(
-                    lambda state, dim: state.index_select(dim, select_indices)
-                )
+#             if parallel_paths > 1 or any_finished:
+#                 self.decoder.map_state(
+#                     lambda state, dim: state.index_select(dim, select_indices)
+#                 )
 
-        results["scores"] = decode_strategy.scores
-        results["predictions"] = decode_strategy.predictions
-        results["attention"] = decode_strategy.attention
-        # if self.decoder.attention:
-        #    results["alignment"] = self._align_forward(
-        #        batch, decode_strategy.predictions
-        #    )
-        # else:
-        #    results["alignment"] = [[] for _ in range(batch_size)]
-        return results
+#         results["scores"] = decode_strategy.scores
+#         results["predictions"] = decode_strategy.predictions
+#         results["attention"] = decode_strategy.attention
+#         # if self.decoder.attention:
+#         #    results["alignment"] = self._align_forward(
+#         #        batch, decode_strategy.predictions
+#         #    )
+#         # else:
+#         #    results["alignment"] = [[] for _ in range(batch_size)]
+#         return results
 
-    def _span_aggregator(
-        self, hidden_states, input_mask, span_ids, layer_no: int = None,
-    ):
+#     def _span_aggregator(
+#         self, hidden_states, input_mask, span_ids, layer_no: int = None,
+#     ):
 
-        if layer_no is not None:
-            hidden_states = hidden_states[layer_no]
-        if isinstance(hidden_states, tuple):
-            hidden_states = hidden_states[: self.max_layer + 1]
-            hidden_states = self.scalar_mix(hidden_states, mask=input_mask)
-        if self.aggregator == "span":
-            span = self.span_extractor(hidden_states, span_ids).squeeze(
-                1
-            )  # As we will only be extracting one span per sequence
-        elif self.aggregator == "mean":
-            extracted_embeddings, span_mask = batched_span_select(
-                hidden_states, span_ids
-            )
-            extracted_embeddings = (
-                extracted_embeddings * span_mask.type(torch.float).unsqueeze(-1)
-            ).squeeze(1)
-            lengths = (span_mask == True).sum(-1) + 1e-20  # To avoid zero division
-            span = extracted_embeddings.sum(1) / lengths
-        return span, hidden_states
+#         if layer_no is not None:
+#             hidden_states = hidden_states[layer_no]
+#         if isinstance(hidden_states, tuple):
+#             hidden_states = hidden_states[: self.max_layer + 1]
+#             hidden_states = self.scalar_mix(hidden_states, mask=input_mask)
+#         if self.aggregator == "span":
+#             span = self.span_extractor(hidden_states, span_ids).squeeze(
+#                 1
+#             )  # As we will only be extracting one span per sequence
+#         elif self.aggregator == "mean":
+#             extracted_embeddings, span_mask = batched_span_select(
+#                 hidden_states, span_ids
+#             )
+#             extracted_embeddings = (
+#                 extracted_embeddings * span_mask.type(torch.float).unsqueeze(-1)
+#             ).squeeze(1)
+#             lengths = (span_mask == True).sum(-1) + 1e-20  # To avoid zero division
+#             span = extracted_embeddings.sum(1) / lengths
+#         return span, hidden_states

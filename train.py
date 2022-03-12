@@ -17,7 +17,7 @@ from memstat import make_report
 
 config_parser = StrictConfigParser(default=os.path.join("config", "config.yaml"))
 
-# @profile
+@profile
 def main():
 
     config = config_parser.parse_args()

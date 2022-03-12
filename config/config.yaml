@@ -40,7 +40,7 @@ dataset: oxford
 
 seed: 12
 
-train_batch_size: 64
+train_batch_size: 32
 valid_batch_size: 128
 
 latent_size: 83 
@@ -59,7 +59,7 @@ tgt_word_dropout: 0.25
 teacher_forcing_p: 0.2
 
 kl_reach_point: 50
-warmup_steps: 1259
+warmup_steps: 3000
 attentional: True
 aggregator: mean
 validation_interval: null

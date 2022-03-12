@@ -374,7 +374,7 @@ class Trainer(object):
             metric_infos[metric]["stopped"] = False
         return is_best_so_far, out_of_patience
 
-    @profile
+    # @profile
     def _train(self, batch_size):
 
         assert isinstance(self._model, torch.nn.Module), (

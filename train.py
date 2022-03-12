@@ -12,7 +12,7 @@ import json
 
 from embeddings import Word2Vec
 
-# from pytorch_memlab import profile
+from pytorch_memlab import profile, MemReporter
 
 config_parser = StrictConfigParser(default=os.path.join("config", "config.yaml"))
 
@@ -114,6 +114,8 @@ def main():
         decoder_num_layers=config.decoder_num_layers,
     ).to(device)
 
+    reporter = MemReporter(model)
+
     ####################################
     ####################################
 
@@ -128,6 +130,8 @@ def main():
             f" {sum(p.numel() for p in model.parameters() if p.requires_grad)}"
         )
 
+    reporter.report(verbose=True)
+
     try:
         for i in range(config.max_epochs):
             train_out = trainer._train(config.train_batch_size)
@@ -137,6 +141,8 @@ def main():
         test_out = trainer._test(config.valid_batch_size)
     except KeyboardInterrupt:
         print("Stopping training, train counter =", trainer._train_counter)
+    finally:
+        reporter.report(verbose=True)
 
 if __name__ == "__main__":
     main()

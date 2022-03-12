@@ -12,9 +12,12 @@ import json
 
 from embeddings import Word2Vec
 
+from pytorch_memlab import profile
+
 config_parser = StrictConfigParser(default=os.path.join("config", "config.yaml"))
 
-if __name__ == "__main__":
+@profile
+def main():
 
     config = config_parser.parse_args()
 
@@ -134,3 +137,6 @@ if __name__ == "__main__":
         test_out = trainer._test(config.valid_batch_size)
     except KeyboardInterrupt:
         print("Stopping training, train counter =", trainer._train_counter)
+
+if __name__ == "__main__":
+    main()

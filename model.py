@@ -18,6 +18,8 @@ from torch.distributions import Normal
 from torch.distributions.kl import kl_divergence
 from attention import Attention
 
+from pytorch_memlab import profile
+
 
 class DefinitionProbing(nn.Module):
     def __init__(
@@ -102,6 +104,7 @@ class DefinitionProbing(nn.Module):
                 nn.Linear(self.latent_size, self.decoder_hidden), nn.Tanh()
             )
 
+    @profile
     def forward(
         self,
         input,

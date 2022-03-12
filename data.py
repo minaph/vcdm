@@ -5,8 +5,9 @@ from torchtext import data
 from nltk.tokenize import word_tokenize
 from dotmap import DotMap
 from utils import removeDuplicates, elmo_batch_to_ids
-from transformers import BertTokenizer, GPT2Tokenizer, RobertaTokenizer, AutoTokenizer
-from collections import defaultdict, Counter
+# from transformers import BertTokenizer, GPT2Tokenizer, RobertaTokenizer, AutoTokenizer
+from transformers import AutoTokenizer
+# from collections import defaultdict, Counter
 import os
 import torch
 import re

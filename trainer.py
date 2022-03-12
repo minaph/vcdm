@@ -1,8 +1,8 @@
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
+# import torch.nn as nn
+# import torch.nn.functional as F
 import torch.optim as optim
-from torch.optim.lr_scheduler import ReduceLROnPlateau, ExponentialLR
+# from torch.optim.lr_scheduler import ReduceLROnPlateau, ExponentialLR
 from beam import BeamSearch
 from tensorboardX import SummaryWriter
 from utils import batch_bleu, bert_dual_sequence_mask
@@ -12,19 +12,19 @@ from utils import mkdir
 from dotmap import DotMap
 import tqdm
 import json
-import sacrebleu
+# import sacrebleu
 import numpy as np
-from transformers import BertModel, RobertaModel
+# from transformers import BertModel, RobertaModel
 from itertools import chain
 from bert_score import BERTScorer
-from itertools import islice
+# from itertools import islice
 
 from pytorch_memlab import profile
 
 scorer = BERTScorer(lang="en")
 bert_score = scorer.score
 
-__transformers__ = [BertModel, RobertaModel]
+# __transformers__ = [BertModel, RobertaModel]
 
 
 def build_trainer(model, args, datamaker, phase="train"):

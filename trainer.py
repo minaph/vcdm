@@ -19,6 +19,8 @@ from itertools import chain
 from bert_score import BERTScorer
 from itertools import islice
 
+from pytorch_memlab import profile
+
 scorer = BERTScorer(lang="en")
 bert_score = scorer.score
 
@@ -372,6 +374,7 @@ class Trainer(object):
             metric_infos[metric]["stopped"] = False
         return is_best_so_far, out_of_patience
 
+    @profile
     def _train(self, batch_size):
 
         assert isinstance(self._model, torch.nn.Module), (

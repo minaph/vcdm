@@ -1,5 +1,5 @@
 patience: 8
-serialization_dir: RESULTS_DIR 
+serialization_dir: results/ 
 device: cuda
 clip: 0.5
 initial_lr: 0.001

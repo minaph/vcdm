@@ -1,4 +1,4 @@
-import transformers
+# import transformers
 from allennlp.modules.elmo import Elmo
 from transformers import AutoConfig, AutoModel
 from torch.distributions.bernoulli import Bernoulli

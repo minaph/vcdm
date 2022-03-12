@@ -445,8 +445,8 @@ class Trainer(object):
                 sentence_mask = bert_dual_sequence_mask(
                     # example, self._datamaker.vocab.example.encode("</s>")[1:-1], device=self._device
                     # example, self._datamaker.vocab.example.encode(self._datamaker.vocab.example._sep_token)[1:-1], device=self._device
-                    # example, self._datamaker.vocab.example.encode(bos_token)[1:-1], device=self._device
-                    example, self._tgt_bos_idx, device=self._device
+                    example, self._datamaker.vocab.example.encode(bos_token)[1:-1], device=self._device
+                    # example, self._tgt_bos_idx, device=self._device
                 )
                 current_batch_size = word.shape[0]
 
@@ -647,7 +647,8 @@ class Trainer(object):
                 sentence_mask = bert_dual_sequence_mask(
                     # example, self._datamaker.vocab.example.encode("</s>")[1:-1], device=self._device
                     # example, self._datamaker.vocab.example.encode(self._datamaker.vocab.example._sep_token)[1:-1], device=self._device
-                    example, self._tgt_bos_idx, device=self._device
+                    # example, self._tgt_bos_idx, device=self._device
+                    example, self._datamaker.vocab.example.encode(bos_token)[1:-1], device=self._device
                 )
                 current_batch_size = word.shape[0]
 
@@ -953,7 +954,8 @@ class Trainer(object):
                 sentence_mask = bert_dual_sequence_mask(
                     # example, self._datamaker.vocab.example.encode("</s>")[1:-1], device=self._device
                     # example, self._datamaker.vocab.example.encode(self._datamaker.vocab.example._sep_token)[1:-1], device=self._device
-                    example, self._tgt_bos_idx, device=self._device
+                    # example, self._tgt_bos_idx, device=self._device
+                    example, self._datamaker.vocab.example.encode(bos_token)[1:-1], device=self._device
                 )
                 current_batch_size = word.shape[0]
 

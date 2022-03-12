@@ -130,6 +130,7 @@ def main():
             f" {sum(p.numel() for p in model.parameters() if p.requires_grad)}"
         )
 
+    reporter.collect_tensor()
     reporter.get_stats()
     with open(config.serialization_dir + "/model_memory_stats_init.json", "w") as f:
         json.dump(reporter.device_tensor_stat, f)
@@ -144,6 +145,7 @@ def main():
     except KeyboardInterrupt:
         print("Stopping training, train counter =", trainer._train_counter)
     finally:
+        reporter.collect_tensor()
         reporter.get_stats()
         with open(config.serialization_dir + "/model_memory_stats_trained.json", "w") as f:
             json.dump(reporter.device_tensor_stat, f)

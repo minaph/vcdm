@@ -1,5 +1,5 @@
 from config import StrictConfigParser
-from trainer import build_trainer
+from trainer import Trainer, build_trainer
 from model import DefinitionProbing
 from data import get_dm_conf, DataMaker
 from modules import get_pretrained_transformer
@@ -66,7 +66,6 @@ def main():
             )
         }
     )
-    del Word2Vec
 
     embeddings.tgt.unk_idx, embeddings.tgt.padding_idx = (
         datamaker.vocab.definition.stoi["<unk>"],
@@ -121,7 +120,7 @@ def main():
     ####################################
 
     ########## TRAINING LOOP ###########
-    trainer = build_trainer(model, config, datamaker)
+    trainer: Trainer = build_trainer(model, config, datamaker)
     with open(config.serialization_dir + "/config.json", "w") as f:
         json.dump(dict(config.to_dict()), f)
     with open(config.serialization_dir + "/model_architecture", "w") as f:

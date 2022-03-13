@@ -66,8 +66,8 @@ def main():
             )
         }
     )
-    remove_w2v()
-    
+    del Word2Vec
+
     embeddings.tgt.unk_idx, embeddings.tgt.padding_idx = (
         datamaker.vocab.definition.stoi["<unk>"],
         datamaker.vocab.definition.stoi["<pad>"],

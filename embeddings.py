@@ -37,6 +37,3 @@ def Word2Vec(list_of_words):
     print("Vocab Size:", embedding_matrix.shape)
     print("Coverage:", 100 * number / len(list_of_words))
     return embs
-
-def remove_w2v():
-    del google_wv

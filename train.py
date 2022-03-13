@@ -10,7 +10,7 @@ from dotmap import DotMap
 import hashlib
 import json
 
-from embeddings import Word2Vec
+from embeddings import Word2Vec, remove_w2v
 
 from pytorch_memlab import profile, MemReporter
 from memstat import make_report
@@ -66,6 +66,8 @@ def main():
             )
         }
     )
+    remove_w2v()
+    
     embeddings.tgt.unk_idx, embeddings.tgt.padding_idx = (
         datamaker.vocab.definition.stoi["<unk>"],
         datamaker.vocab.definition.stoi["<pad>"],

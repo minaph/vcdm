@@ -10,7 +10,7 @@ from dotmap import DotMap
 import hashlib
 import json
 
-from embeddings import Word2Vec, remove_w2v
+from embeddings import Word2Vec
 
 from pytorch_memlab import profile, MemReporter
 from memstat import make_report

@@ -40,7 +40,7 @@ dataset: oxford
 
 seed: 12
 
-train_batch_size: 32
+train_batch_size: 64
 valid_batch_size: 128
 
 latent_size: 83 

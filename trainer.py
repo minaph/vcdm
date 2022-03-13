@@ -528,6 +528,7 @@ class Trainer(object):
 
                 loss.backward()
                 self._optimizer.step()
+                del loss
 
                 for i, param_group in enumerate(self._optimizer.param_groups):
                     self._TB_train_log.add_scalar(

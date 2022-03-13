@@ -555,6 +555,10 @@ class Trainer(object):
                         "truncate the inputs to the model."
                     )
                     torch.cuda.empty_cache()
+
+                    if "loss" in locals():
+                        del loss
+                    
                     continue
                 else:
                     raise e
